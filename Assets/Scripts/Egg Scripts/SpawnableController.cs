@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Player_Scripts;
 using SO;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -10,12 +11,12 @@ namespace Egg_Scripts
     {
         private float dropSpeed;
         [SerializeField] private Spawnable mySO;
-        private Rigidbody rb;
+        private Rigidbody2D rb;
 
         private void Start()
         {
             dropSpeed = Random.Range(mySO.minBaseSpeed, mySO.maxBaseSpeed);
-            rb = GetComponent<Rigidbody>();
+            rb = GetComponent<Rigidbody2D>();
         }
 
         private void FixedUpdate()
@@ -26,11 +27,18 @@ namespace Egg_Scripts
             
         }
 
-
-        private void OnCollisionEnter(Collision collision)
+        private void OnCollisionEnter2D(Collision2D col)
         {
-            //Destroy(gameObject);
             PoolingManager.Instance.ReleaseToPool(this);
+            if (col.collider.GetComponent<PlayerController>()!=null)
+            {
+                CustomEventHandler<RaindropCaught>.Trigger?.Invoke();
+            }
+            else
+            {
+                CustomEventHandler<RaindropMissed>.Trigger?.Invoke();
+            }
         }
+        
     }
 }
